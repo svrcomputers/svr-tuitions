@@ -4,7 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SVR Tuitions Fee Management</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="SVR Tuitions">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SVR Tuitions">
+    <meta name="description" content="SVR Tuitions Fee Management System">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#2c3e50">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#3498db">
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg">
+    <link rel="shortcut icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg">
+    
+    <!-- Styles & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
@@ -102,6 +122,25 @@
 
         .logout-btn:hover {
             background-color: #c0392b;
+        }
+
+        /* Install App Button */
+        .btn-install {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-install:hover {
+            background-color: #8e44ad;
         }
 
         /* Login Page */
@@ -472,30 +511,6 @@
             color: var(--light-color);
         }
 
-        /* PWA Install Prompt */
-        .pwa-install-prompt {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            display: none;
-            z-index: 3000;
-            max-width: 350px;
-        }
-
-        .pwa-install-prompt p {
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-
-        .pwa-install-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
         /* Loading Spinner */
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
@@ -523,6 +538,11 @@
             .header-content {
                 flex-direction: column;
                 gap: 15px;
+            }
+
+            .user-info {
+                flex-wrap: wrap;
+                justify-content: center;
             }
 
             .actions-bar {
@@ -556,6 +576,47 @@
                 width: 100%;
                 justify-content: center;
             }
+            
+            .login-box {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-install, .logout-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 4000;
+            animation: slideIn 0.3s ease;
+            max-width: 350px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
     </style>
 </head>
@@ -595,6 +656,9 @@
                 </div>
                 <div class="user-info">
                     <span id="currentUser">Loading...</span>
+                    <button class="btn-install" id="installAppBtn" style="display: none;">
+                        <i class="fas fa-download"></i> Install App
+                    </button>
                     <button class="logout-btn" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -781,19 +845,10 @@
         </div>
     </div>
 
-    <!-- PWA Install Prompt -->
-    <div class="pwa-install-prompt" id="pwaInstallPrompt">
-        <p>Install SVR Tuitions App for better experience</p>
-        <div class="pwa-install-buttons">
-            <button class="btn btn-primary" id="installPwaBtn">Install</button>
-            <button class="btn" id="dismissPwaBtn">Not Now</button>
-        </div>
-    </div>
-
     <!-- JavaScript -->
     <script>
-        // Firebase Configuration
-         const firebaseConfig = {
+        // Firebase Configuration - REPLACE WITH YOUR OWN CONFIG
+        const firebaseConfig = {
   apiKey: "AIzaSyB6hcyKbrxyh0voH1yKB-CDwk5S1TQlM08",
   authDomain: "svrtuitions-975d5.firebaseapp.com",
   projectId: "svrtuitions-975d5",
@@ -840,10 +895,8 @@
         const addStudentForm = document.getElementById('addStudentForm');
         const recordPaymentForm = document.getElementById('recordPaymentForm');
         const paymentStudentSelect = document.getElementById('paymentStudent');
-        const pwaInstallPrompt = document.getElementById('pwaInstallPrompt');
-        const installPwaBtn = document.getElementById('installPwaBtn');
-        const dismissPwaBtn = document.getElementById('dismissPwaBtn');
         const loadingSpinner = document.getElementById('loadingSpinner');
+        const installAppBtn = document.getElementById('installAppBtn');
 
         // Dashboard counters
         const totalStudentsEl = document.getElementById('totalStudents');
@@ -866,21 +919,53 @@
             // Setup event listeners
             setupEventListeners();
 
-            // PWA install prompt
+            // PWA install - Listen for install prompt
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
+                // Show install button after login
                 setTimeout(() => {
-                    pwaInstallPrompt.style.display = 'block';
-                }, 3000);
+                    showInstallButton();
+                }, 2000);
+            });
+
+            // Check if already installed
+            window.addEventListener('appinstalled', () => {
+                console.log('App was installed');
+                installAppBtn.style.display = 'none';
+                showNotification('App installed successfully!', 'success');
             });
 
             // Register service worker for PWA
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(() => console.log('Service Worker Registered'))
-                    .catch(err => console.log('Service Worker Registration Failed:', err));
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('service-worker.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registered successfully');
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                });
             }
+
+            // Set today's date as default for payment date
+            document.getElementById('paymentDate').valueAsDate = new Date();
+        }
+
+        // Show install button when PWA can be installed
+        function showInstallButton() {
+            // Only show if not already installed and deferredPrompt is available
+            if (deferredPrompt && !isAppInstalled()) {
+                installAppBtn.style.display = 'flex';
+            }
+        }
+
+        // Check if app is already installed
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone ||
+                   document.referrer.includes('android-app://');
         }
 
         // Setup event listeners
@@ -890,6 +975,9 @@
 
             // Logout button
             logoutBtn.addEventListener('click', handleLogout);
+
+            // Install App button
+            installAppBtn.addEventListener('click', handleInstallApp);
 
             // Search input
             searchInput.addEventListener('input', handleSearch);
@@ -950,10 +1038,6 @@
                 });
             });
 
-            // PWA install buttons
-            installPwaBtn.addEventListener('click', installPWA);
-            dismissPwaBtn.addEventListener('click', () => pwaInstallPrompt.style.display = 'none');
-
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target === addStudentModal) {
@@ -962,6 +1046,30 @@
                 }
                 if (e.target === recordPaymentModal) hideModal(recordPaymentModal);
             });
+        }
+
+        // Handle install app button click
+        async function handleInstallApp() {
+            if (!deferredPrompt) {
+                showNotification('Installation not available on this device', 'warning');
+                return;
+            }
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond
+            const choiceResult = await deferredPrompt.userChoice;
+            
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install');
+                installAppBtn.style.display = 'none';
+            } else {
+                console.log('User dismissed the install');
+                installAppBtn.style.display = 'flex';
+            }
+            
+            deferredPrompt = null;
         }
 
         // Reset add student form to default state
@@ -983,12 +1091,6 @@
             submitBtn.style.width = '100%';
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
-            
-            // Clear any validation messages
-            const inputs = addStudentForm.querySelectorAll('.form-control');
-            inputs.forEach(input => {
-                input.style.borderColor = '#ddd';
-            });
         }
 
         // Handle login
@@ -1071,6 +1173,13 @@
             appContainer.style.display = 'block';
             currentUserSpan.textContent = currentUser.email;
             
+            // Check and show install button
+            if (deferredPrompt && !isAppInstalled()) {
+                installAppBtn.style.display = 'flex';
+            } else {
+                installAppBtn.style.display = 'none';
+            }
+            
             // Show loading spinner
             loadingSpinner.style.display = 'block';
             studentsTableBody.innerHTML = '';
@@ -1095,6 +1204,7 @@
             loginScreen.style.display = 'flex';
             appContainer.style.display = 'none';
             loginForm.reset();
+            installAppBtn.style.display = 'none';
         }
 
         // Load students from Firestore
@@ -1181,7 +1291,7 @@
                 row.innerHTML = `
                     <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-color);">
                         <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                        No students found. Add your first student!
+                        No students found. ${filter ? 'Try different search.' : 'Add your first student!'}
                     </td>
                 `;
                 studentsTableBody.appendChild(row);
@@ -1533,41 +1643,13 @@
             }, 3000);
         }
 
-        // Install PWA
-        function installPWA() {
-            if (!deferredPrompt) return;
-            
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                deferredPrompt = null;
-                pwaInstallPrompt.style.display = 'none';
-            });
-        }
-
-        // Add CSS animations for notifications
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Set today's date as default for payment date
-        document.getElementById('paymentDate').valueAsDate = new Date();
-
         // Initialize the app
         initApp();
+        
+        // Make functions available globally for onclick handlers
+        window.editStudent = editStudent;
+        window.deleteStudent = deleteStudent;
+        window.viewPaymentHistory = viewPaymentHistory;
     </script>
 </body>
 </html>
