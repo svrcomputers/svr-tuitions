@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SVR Tuitions Fee Management</title>
     
-   <!-- PWA Meta Tags -->
+  <!-- PWA Meta Tags -->
 <meta name="application-name" content="SVR Tuitions">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -243,6 +243,55 @@
             color: var(--secondary-color);
         }
 
+        /* Month Selector */
+        .month-selector {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .month-selector h3 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .month-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .month-btn {
+            background-color: var(--light-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .month-btn:hover {
+            background-color: #d5dbdb;
+        }
+
+        .current-month {
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 120px;
+            text-align: center;
+        }
+
         /* Dashboard Cards */
         .dashboard-cards {
             display: grid;
@@ -301,6 +350,59 @@
         .card-info p {
             color: var(--gray-color);
             font-size: 0.9rem;
+        }
+
+        /* Month Summary Cards */
+        .month-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .month-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .month-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .month-card.active {
+            border: 2px solid var(--secondary-color);
+            background-color: #f8f9fa;
+        }
+
+        .month-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .month-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .month-stat {
+            text-align: center;
+        }
+
+        .month-stat .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .month-stat .label {
+            font-size: 0.8rem;
+            color: var(--gray-color);
         }
 
         /* Actions Bar */
@@ -552,6 +654,16 @@
                 justify-content: center;
             }
 
+            .month-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .month-controls {
+                width: 100%;
+                justify-content: center;
+            }
+
             .actions-bar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -565,6 +677,10 @@
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
 
+            .month-summary {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
             th, td {
                 padding: 10px;
             }
@@ -573,6 +689,10 @@
         @media (max-width: 576px) {
             .dashboard-cards {
                 grid-template-columns: 1fr;
+            }
+
+            .month-summary {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .action-buttons {
@@ -676,7 +796,29 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="container">
+                <!-- Month Selector -->
+                <div class="month-selector">
+                    <h3><i class="fas fa-calendar-alt"></i> Month View</h3>
+                    <div class="month-controls">
+                        <button class="month-btn" id="prevMonthBtn">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="current-month" id="currentMonthDisplay">April 2023</div>
+                        <button class="month-btn" id="nextMonthBtn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Month Summary -->
+                <div class="month-summary" id="monthSummary">
+                    <!-- Month cards will be inserted here by JavaScript -->
+                </div>
+
                 <!-- Dashboard Cards -->
+                <h2 class="section-title">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+                </h2>
                 <div class="dashboard-cards">
                     <div class="card">
                         <div class="card-icon students">
@@ -693,7 +835,7 @@
                         </div>
                         <div class="card-info">
                             <h3 id="paidFees">0</h3>
-                            <p>Fees Paid</p>
+                            <p id="paidFeesLabel">Fees Paid (This Month)</p>
                         </div>
                     </div>
                     <div class="card">
@@ -702,7 +844,7 @@
                         </div>
                         <div class="card-info">
                             <h3 id="pendingFees">0</h3>
-                            <p>Fees Pending</p>
+                            <p id="pendingFeesLabel">Fees Pending (This Month)</p>
                         </div>
                     </div>
                     <div class="card">
@@ -711,7 +853,7 @@
                         </div>
                         <div class="card-info">
                             <h3 id="totalAmount">₹0</h3>
-                            <p>Total Collected</p>
+                            <p id="totalAmountLabel">Collected (This Month)</p>
                         </div>
                     </div>
                 </div>
@@ -750,6 +892,7 @@
                                 <th>Class</th>
                                 <th>Fee Paid</th>
                                 <th>Date of Payment</th>
+                                <th>Month</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -844,6 +987,10 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="paymentYear">For Year</label>
+                        <input type="number" id="paymentYear" class="form-control" value="2023" required>
+                    </div>
+                    <div class="form-group">
                         <label for="paymentDate">Date of Payment</label>
                         <input type="date" id="paymentDate" class="form-control" required>
                     </div>
@@ -855,15 +1002,15 @@
 
     <!-- JavaScript -->
     <script>
-        // Firebase Configuration - REPLACE WITH YOUR OWN CONFIG
+        // Firebase Configuration
         const firebaseConfig = {
-  apiKey: "AIzaSyB6hcyKbrxyh0voH1yKB-CDwk5S1TQlM08",
-  authDomain: "svrtuitions-975d5.firebaseapp.com",
-  projectId: "svrtuitions-975d5",
-  storageBucket: "svrtuitions-975d5.firebasestorage.app",
-  messagingSenderId: "584401346020",
-  appId: "1:584401346020:web:266807134fd8801e427bf1"
-};
+            apiKey: "AIzaSyB6hcyKbrxyh0voH1yKB-CDwk5S1TQlM08",
+            authDomain: "svrtuitions-975d5.firebaseapp.com",
+            projectId: "svrtuitions-975d5",
+            storageBucket: "svrtuitions-975d5.firebasestorage.app",
+            messagingSenderId: "584401346020",
+            appId: "1:584401346020:web:266807134fd8801e427bf1"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -883,6 +1030,12 @@
         let currentEditStudentId = null;
         let isAddingStudent = false;
         let isRecordingPayment = false;
+        
+        // Month tracking
+        let currentMonthIndex = 3; // April is index 3
+        let currentYear = 2023;
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
 
         // DOM Elements
         const loginScreen = document.getElementById('loginScreen');
@@ -905,15 +1058,27 @@
         const paymentStudentSelect = document.getElementById('paymentStudent');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const installAppBtn = document.getElementById('installAppBtn');
+        
+        // Month elements
+        const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const monthSummary = document.getElementById('monthSummary');
 
         // Dashboard counters
         const totalStudentsEl = document.getElementById('totalStudents');
         const paidFeesEl = document.getElementById('paidFees');
         const pendingFeesEl = document.getElementById('pendingFees');
         const totalAmountEl = document.getElementById('totalAmount');
+        const paidFeesLabel = document.getElementById('paidFeesLabel');
+        const pendingFeesLabel = document.getElementById('pendingFeesLabel');
+        const totalAmountLabel = document.getElementById('totalAmountLabel');
 
         // Initialize the app
         function initApp() {
+            // Set current year
+            currentYear = new Date().getFullYear();
+            
             // Set up auth state listener
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
@@ -959,6 +1124,10 @@
 
             // Set today's date as default for payment date
             document.getElementById('paymentDate').valueAsDate = new Date();
+            document.getElementById('paymentYear').value = currentYear;
+            
+            // Update month display
+            updateMonthDisplay();
         }
 
         // Show install button when PWA can be installed
@@ -989,6 +1158,31 @@
 
             // Search input
             searchInput.addEventListener('input', handleSearch);
+
+            // Month navigation
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonthIndex--;
+                if (currentMonthIndex < 0) {
+                    currentMonthIndex = 11;
+                    currentYear--;
+                }
+                updateMonthDisplay();
+                updateDashboard();
+                renderMonthSummary();
+                renderStudentsTable();
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonthIndex++;
+                if (currentMonthIndex > 11) {
+                    currentMonthIndex = 0;
+                    currentYear++;
+                }
+                updateMonthDisplay();
+                updateDashboard();
+                renderMonthSummary();
+                renderStudentsTable();
+            });
 
             // Add student button with debouncing
             addStudentBtn.addEventListener('click', () => {
@@ -1080,6 +1274,20 @@
             deferredPrompt = null;
         }
 
+        // Update month display
+        function updateMonthDisplay() {
+            currentMonthDisplay.textContent = `${months[currentMonthIndex]} ${currentYear}`;
+            
+            // Update payment form with current month
+            document.getElementById('paymentMonth').value = months[currentMonthIndex];
+            document.getElementById('paymentYear').value = currentYear;
+            
+            // Update dashboard labels
+            paidFeesLabel.textContent = `Fees Paid (${months[currentMonthIndex]})`;
+            pendingFeesLabel.textContent = `Fees Pending (${months[currentMonthIndex]})`;
+            totalAmountLabel.textContent = `Collected (${months[currentMonthIndex]})`;
+        }
+
         // Reset add student form to default state
         function resetAddStudentForm() {
             isEditMode = false;
@@ -1152,13 +1360,13 @@
 
                 // Add demo payments
                 const demoPayments = [
-                    { studentName: "Rahul Sharma", amount: 2000, month: "April", date: "2023-04-10", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Priya Patel", amount: 1800, month: "April", date: "2023-04-12", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Amit Kumar", amount: 2200, month: "April", date: "2023-04-15", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Sneha Singh", amount: 1500, month: "April", date: "2023-04-05", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Karan Mehta", amount: 2500, month: "March", date: "2023-03-28", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Rahul Sharma", amount: 2000, month: "May", date: "2023-05-12", status: "paid", createdAt: new Date().toISOString() },
-                    { studentName: "Priya Patel", amount: 1800, month: "May", date: "2023-05-14", status: "pending", createdAt: new Date().toISOString() },
+                    { studentName: "Rahul Sharma", amount: 2000, month: "April", year: 2023, date: "2023-04-10", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Priya Patel", amount: 1800, month: "April", year: 2023, date: "2023-04-12", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Amit Kumar", amount: 2200, month: "April", year: 2023, date: "2023-04-15", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Sneha Singh", amount: 1500, month: "April", year: 2023, date: "2023-04-05", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Karan Mehta", amount: 2500, month: "March", year: 2023, date: "2023-03-28", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Rahul Sharma", amount: 2000, month: "May", year: 2023, date: "2023-05-12", status: "paid", createdAt: new Date().toISOString() },
+                    { studentName: "Priya Patel", amount: 1800, month: "May", year: 2023, date: "2023-05-14", status: "pending", createdAt: new Date().toISOString() },
                 ];
 
                 for (const payment of demoPayments) {
@@ -1198,6 +1406,7 @@
                 await loadPayments();
                 
                 updateDashboard();
+                renderMonthSummary();
                 renderStudentsTable();
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -1255,33 +1464,134 @@
             }
         }
 
-        // Update dashboard counters - FIXED: Correct pending fee calculation
+        // Calculate month-wise statistics
+        function calculateMonthWiseStats() {
+            const monthStats = {};
+            
+            // Initialize all months
+            months.forEach(month => {
+                monthStats[month] = {
+                    paid: 0,
+                    pending: 0,
+                    total: 0,
+                    paidCount: 0,
+                    pendingCount: 0
+                };
+            });
+            
+            // Calculate stats for current year
+            const currentYearPayments = payments.filter(p => p.year == currentYear);
+            
+            // Count paid payments per month
+            currentYearPayments.forEach(payment => {
+                const month = payment.month;
+                if (monthStats[month] && payment.status === 'paid') {
+                    monthStats[month].paid += payment.amount;
+                    monthStats[month].total += payment.amount;
+                    monthStats[month].paidCount += 1;
+                }
+            });
+            
+            // Calculate pending students for each month
+            students.forEach(student => {
+                months.forEach(month => {
+                    // Check if student has paid for this month in current year
+                    const hasPaid = currentYearPayments.some(p => 
+                        p.studentName === student.name && 
+                        p.month === month && 
+                        p.status === 'paid'
+                    );
+                    
+                    if (!hasPaid) {
+                        monthStats[month].pendingCount += 1;
+                        monthStats[month].pending += student.monthlyFee || 0;
+                    }
+                });
+            });
+            
+            return monthStats;
+        }
+
+        // Render month summary cards
+        function renderMonthSummary() {
+            const monthStats = calculateMonthWiseStats();
+            
+            monthSummary.innerHTML = '';
+            
+            months.forEach((month, index) => {
+                const stats = monthStats[month];
+                const isActive = index === currentMonthIndex;
+                
+                const monthCard = document.createElement('div');
+                monthCard.className = `month-card ${isActive ? 'active' : ''}`;
+                monthCard.innerHTML = `
+                    <h4>${month}</h4>
+                    <div class="month-stats">
+                        <div class="month-stat">
+                            <div class="value">₹${stats.paid}</div>
+                            <div class="label">Paid</div>
+                        </div>
+                        <div class="month-stat">
+                            <div class="value">${stats.pendingCount}</div>
+                            <div class="label">Pending</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add click event to switch month
+                monthCard.addEventListener('click', () => {
+                    currentMonthIndex = index;
+                    updateMonthDisplay();
+                    updateDashboard();
+                    renderMonthSummary();
+                    renderStudentsTable();
+                });
+                
+                monthSummary.appendChild(monthCard);
+            });
+        }
+
+        // Update dashboard counters for selected month
         function updateDashboard() {
             const totalStudents = students.length;
+            const currentMonth = months[currentMonthIndex];
             
-            // Get all unique students who have payments
-            const studentsWithPayments = [...new Set(payments.map(p => p.studentName))];
+            // Get payments for selected month and year
+            const monthPayments = payments.filter(p => 
+                p.month === currentMonth && p.year == currentYear
+            );
             
-            // Calculate correctly: Pending fees = students without any payment records
-            const pendingFees = totalStudents - studentsWithPayments.length;
+            // Get unique students who have paid for this month
+            const paidStudents = [...new Set(
+                monthPayments
+                    .filter(p => p.status === 'paid')
+                    .map(p => p.studentName)
+            )];
             
-            // Paid fees = students who have at least one payment
-            const paidFees = studentsWithPayments.length;
+            // Students who haven't paid for this month
+            const pendingStudents = students.filter(student => 
+                !paidStudents.includes(student.name)
+            );
             
-            // Total amount from paid payments only
-            const totalAmount = payments
+            const paidFees = paidStudents.length;
+            const pendingFees = pendingStudents.length;
+            
+            // Total amount collected this month
+            const totalAmount = monthPayments
                 .filter(p => p.status === 'paid')
                 .reduce((sum, payment) => sum + payment.amount, 0);
 
             totalStudentsEl.textContent = totalStudents;
             paidFeesEl.textContent = paidFees;
-            pendingFeesEl.textContent = pendingFees > 0 ? pendingFees : 0;
+            pendingFeesEl.textContent = pendingFees;
             totalAmountEl.textContent = `₹${totalAmount}`;
         }
 
-        // Render students table
+        // Render students table for selected month
         function renderStudentsTable(filter = '') {
             studentsTableBody.innerHTML = '';
+            
+            const currentMonth = months[currentMonthIndex];
             
             const filteredStudents = students.filter(student => {
                 if (!filter) return true;
@@ -1297,7 +1607,7 @@
             if (filteredStudents.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-color);">
+                    <td colspan="10" style="text-align: center; padding: 40px; color: var(--gray-color);">
                         <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
                         No students found. ${filter ? 'Try different search.' : 'Add your first student!'}
                     </td>
@@ -1307,20 +1617,14 @@
             }
 
             filteredStudents.forEach((student, index) => {
-                // Get ALL payments for this student
-                const studentPayments = payments.filter(p => p.studentName === student.name);
+                // Get payment for this month and year
+                const monthPayment = payments.find(p => 
+                    p.studentName === student.name && 
+                    p.month === currentMonth && 
+                    p.year == currentYear
+                );
                 
-                // Calculate if student has any payment (for status)
-                const hasPayment = studentPayments.length > 0;
-                
-                // Get latest payment for display
-                const latestPayment = studentPayments.length > 0 
-                    ? studentPayments.reduce((latest, current) => 
-                        new Date(current.date) > new Date(latest.date) ? current : latest)
-                    : null;
-
-                // Determine status: If no payments at all, it's pending
-                const status = hasPayment ? (latestPayment.status || 'paid') : 'pending';
+                const status = monthPayment ? monthPayment.status : 'pending';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -1329,8 +1633,9 @@
                     <td>${student.parentName}</td>
                     <td>${student.mobileNo}</td>
                     <td>${student.class}</td>
-                    <td>₹${latestPayment ? latestPayment.amount : '0'}</td>
-                    <td>${latestPayment ? formatDate(latestPayment.date) : '-'}</td>
+                    <td>${monthPayment ? `₹${monthPayment.amount}` : '₹0'}</td>
+                    <td>${monthPayment ? formatDate(monthPayment.date) : '-'}</td>
+                    <td>${currentMonth}</td>
                     <td>
                         <span class="status ${status}">
                             ${status === 'paid' ? 'Paid' : 'Pending'}
@@ -1432,6 +1737,7 @@
                 await loadStudents();
                 await loadPayments();
                 updateDashboard();
+                renderMonthSummary();
                 renderStudentsTable();
                 
                 // Reset form and close modal
@@ -1464,10 +1770,11 @@
                 const studentName = paymentStudentSelect.value;
                 const amount = parseInt(document.getElementById('paymentAmount').value);
                 const month = document.getElementById('paymentMonth').value;
+                const year = parseInt(document.getElementById('paymentYear').value);
                 const date = document.getElementById('paymentDate').value;
                 const status = 'paid';
                 
-                if (!studentName || !amount || !month || !date) {
+                if (!studentName || !amount || !month || !year || !date) {
                     throw new Error('Please fill all required fields');
                 }
                 
@@ -1475,6 +1782,7 @@
                     studentName: studentName,
                     amount: amount,
                     month: month,
+                    year: year,
                     date: date,
                     status: status,
                     createdAt: new Date().toISOString()
@@ -1485,11 +1793,13 @@
                 // Refresh data WITHOUT page reload
                 await loadPayments();
                 updateDashboard();
+                renderMonthSummary();
                 renderStudentsTable();
                 
                 // Reset form and close modal
                 recordPaymentForm.reset();
                 document.getElementById('paymentDate').valueAsDate = new Date();
+                document.getElementById('paymentYear').value = currentYear;
                 hideModal(recordPaymentModal);
                 
                 showNotification('Payment recorded successfully!', 'success');
@@ -1550,6 +1860,7 @@
                     await loadStudents();
                     await loadPayments();
                     updateDashboard();
+                    renderMonthSummary();
                     renderStudentsTable();
                     
                     showNotification('Student deleted successfully!', 'success');
@@ -1569,14 +1880,34 @@
                 return;
             }
             
+            // Group by year
+            const paymentsByYear = {};
+            studentPayments.forEach(payment => {
+                const year = payment.year || 'Unknown';
+                if (!paymentsByYear[year]) {
+                    paymentsByYear[year] = [];
+                }
+                paymentsByYear[year].push(payment);
+            });
+            
             let historyText = `Payment History for ${studentName}:\n\n`;
             let totalPaid = 0;
             
-            studentPayments.forEach(payment => {
-                historyText += `${payment.month} ${new Date(payment.date).getFullYear()}: ₹${payment.amount} (${payment.status})\n`;
-                if (payment.status === 'paid') {
-                    totalPaid += payment.amount;
-                }
+            // Sort years descending
+            const years = Object.keys(paymentsByYear).sort((a, b) => b - a);
+            
+            years.forEach(year => {
+                historyText += `Year ${year}:\n`;
+                const yearPayments = paymentsByYear[year];
+                yearPayments.sort((a, b) => months.indexOf(a.month) - months.indexOf(b.month));
+                
+                yearPayments.forEach(payment => {
+                    historyText += `  ${payment.month}: ₹${payment.amount} (${payment.status}) - ${formatDate(payment.date)}\n`;
+                    if (payment.status === 'paid') {
+                        totalPaid += payment.amount;
+                    }
+                });
+                historyText += '\n';
             });
             
             historyText += `\nTotal Paid: ₹${totalPaid}`;
@@ -1590,13 +1921,13 @@
             let csvContent = "data:text/csv;charset=utf-8,";
             
             // Headers
-            csvContent += "Sl.No,Student Name,Parent Name,Mobile No,Class,Fee Paid,Date of Payment,Status,Month\n";
+            csvContent += "Sl.No,Student Name,Parent Name,Mobile No,Class,Fee Paid,Date of Payment,Month,Year,Status\n";
             
             // Data rows
             payments.forEach((payment, index) => {
                 const student = students.find(s => s.name === payment.studentName);
                 if (student) {
-                    csvContent += `${index + 1},${student.name},${student.parentName},${student.mobileNo},${student.class},₹${payment.amount},${formatDate(payment.date)},${payment.status},${payment.month}\n`;
+                    csvContent += `${index + 1},${student.name},${student.parentName},${student.mobileNo},${student.class},₹${payment.amount},${formatDate(payment.date)},${payment.month},${payment.year},${payment.status}\n`;
                 }
             });
             
